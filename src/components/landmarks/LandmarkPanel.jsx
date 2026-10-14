@@ -15,6 +15,13 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 
+const resolveAssetUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${import.meta.env.BASE_URL}${cleanPath}`;
+};
+
 export function LandmarkPanel() {
   const selectedLandmarkId = useSimulationStore(state => state.selectedLandmarkId);
   const selectLandmark = useSimulationStore(state => state.selectLandmark);
@@ -74,7 +81,7 @@ export function LandmarkPanel() {
       {landmark.image && (
         <div style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
           <img
-            src={landmark.image}
+            src={resolveAssetUrl(landmark.image)}
             alt={landmark.name}
             style={{
               width: '100%',
@@ -167,7 +174,7 @@ export function LandmarkPanel() {
       {showArchivalMap && (
         <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
           <img
-            src="/images/map.png"
+            src={resolveAssetUrl('/images/map.png')}
             alt="Pandharpur City Reference Map"
             style={{ width: '100%', height: '180px', objectFit: 'contain', background: '#0f172a' }}
           />
