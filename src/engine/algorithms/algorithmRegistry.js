@@ -3,6 +3,7 @@ import { runAStar, ASTAR_METADATA, ASTAR_PSEUDOCODE } from './astar.js';
 import { runBFS, BFS_METADATA, BFS_PSEUDOCODE } from './bfs.js';
 import { runDFS, DFS_METADATA, DFS_PSEUDOCODE } from './dfs.js';
 import { runKruskal, KRUSKAL_METADATA, KRUSKAL_PSEUDOCODE } from './kruskal.js';
+import { runPrim, PRIM_METADATA, PRIM_PSEUDOCODE } from './prim.js';
 import { runMultiStop, MULTI_STOP_METADATA, MULTI_STOP_PSEUDOCODE } from './multiStop.js';
 
 export const ALGORITHM_REGISTRY = {
@@ -30,7 +31,7 @@ export const ALGORITHM_REGISTRY = {
     id: 'BFS',
     name: "Breadth-First Search (BFS)",
     runner: (graph, start, target) => runBFS(graph, start, target),
-    requiresTarget: false,
+    requiresTarget: true,
     supportsMultiStop: false,
     pseudocode: BFS_PSEUDOCODE,
     metadata: BFS_METADATA,
@@ -40,7 +41,7 @@ export const ALGORITHM_REGISTRY = {
     id: 'DFS',
     name: "Depth-First Search (DFS)",
     runner: (graph, start, target) => runDFS(graph, start, target),
-    requiresTarget: false,
+    requiresTarget: true,
     supportsMultiStop: false,
     pseudocode: DFS_PSEUDOCODE,
     metadata: DFS_METADATA,
@@ -49,12 +50,22 @@ export const ALGORITHM_REGISTRY = {
   KRUSKAL: {
     id: 'KRUSKAL',
     name: "Kruskal's Minimum Spanning Tree",
-    runner: (graph) => runKruskal(graph),
-    requiresTarget: false,
+    runner: (graph, start, target) => runKruskal(graph, start, target),
+    requiresTarget: true,
     supportsMultiStop: false,
     pseudocode: KRUSKAL_PSEUDOCODE,
     metadata: KRUSKAL_METADATA,
     badgeColor: '#f59e0b'
+  },
+  PRIM: {
+    id: 'PRIM',
+    name: "Prim's Minimum Spanning Tree",
+    runner: (graph, start, target) => runPrim(graph, start, target),
+    requiresTarget: true,
+    supportsMultiStop: false,
+    pseudocode: PRIM_PSEUDOCODE,
+    metadata: PRIM_METADATA,
+    badgeColor: '#eab308'
   },
   MULTI_STOP: {
     id: 'MULTI_STOP',

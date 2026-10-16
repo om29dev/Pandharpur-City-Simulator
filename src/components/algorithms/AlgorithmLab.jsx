@@ -280,29 +280,99 @@ export function AlgorithmLab() {
               </div>
             )}
 
-            {/* Visited Set */}
-            <div>
-              <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '6px', display: 'block' }}>
-                Visited Vertices Set ({currentStep.visited?.length || 0})
-              </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '120px', overflowY: 'auto' }}>
-                {currentStep.visited?.map((v, i) => (
-                  <span
-                    key={`v_${i}`}
-                    style={{
-                      padding: '2px 6px',
-                      background: 'rgba(99, 102, 241, 0.2)',
-                      border: '1px solid rgba(99, 102, 241, 0.4)',
-                      borderRadius: '4px',
-                      fontSize: '0.68rem',
-                      color: '#a5b4fc'
-                    }}
-                  >
-                    {v}
-                  </span>
-                ))}
+            {/* DSU Components (Kruskal) */}
+            {currentStep.dsuSets && (
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', marginBottom: '6px', display: 'block' }}>
+                  Disjoint Set Union (DSU) Partitions ({currentStep.dsuSets.length} sets)
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
+                  {currentStep.dsuSets.slice(0, 10).map((s, idx) => (
+                    <div
+                      key={`dsu_${idx}`}
+                      style={{
+                        padding: '4px 8px',
+                        background: 'rgba(245, 158, 11, 0.1)',
+                        border: '1px solid rgba(245, 158, 11, 0.3)',
+                        borderRadius: '4px',
+                        fontSize: '0.7rem',
+                        color: '#fef08a'
+                      }}
+                    >
+                      <strong style={{ color: '#fbbf24' }}>Tree Component {idx + 1} (Root {s.root}):</strong> {s.members.join(', ')}
+                    </div>
+                  ))}
+                  {currentStep.dsuSets.length > 10 && (
+                    <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                      + {currentStep.dsuSets.length - 10} additional components
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Edge Pool (Kruskal) */}
+            {currentStep.edgePool && (
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#fbbf24', marginBottom: '6px', display: 'block' }}>
+                  Sorted Edge Pool ({currentStep.edgePool.length} candidate edges)
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '130px', overflowY: 'auto' }}>
+                  {currentStep.edgePool.map((e, idx) => {
+                    const isCurrent = currentStep.currentEdge === e.id;
+                    const isAccepted = currentStep.mstEdges?.includes(e.id);
+                    return (
+                      <div
+                        key={`edge_pool_${idx}`}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '4px 8px',
+                          background: isCurrent ? 'rgba(245, 158, 11, 0.3)' : isAccepted ? 'rgba(16, 185, 129, 0.12)' : 'rgba(15, 23, 42, 0.8)',
+                          border: isCurrent ? '1px solid #f59e0b' : isAccepted ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(255, 255, 255, 0.05)',
+                          borderRadius: '4px',
+                          fontSize: '0.72rem'
+                        }}
+                      >
+                        <span style={{ color: isCurrent ? '#fbbf24' : isAccepted ? '#34d399' : '#f8fafc', fontWeight: (isCurrent || isAccepted) ? '700' : '400' }}>
+                          {isAccepted ? '✓ ' : ''}{e.id}
+                        </span>
+                        <span className="mono-font" style={{ color: '#34d399', fontWeight: '700' }}>
+                          {e.weight}m
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Visited Set */}
+            {currentStep.visited && currentStep.visited.length > 0 && (
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '6px', display: 'block' }}>
+                  Visited Vertices Set ({currentStep.visited.length})
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '120px', overflowY: 'auto' }}>
+                  {currentStep.visited.map((v, i) => (
+                    <span
+                      key={`v_${i}`}
+                      style={{
+                        padding: '2px 6px',
+                        background: 'rgba(99, 102, 241, 0.2)',
+                        border: '1px solid rgba(99, 102, 241, 0.4)',
+                        borderRadius: '4px',
+                        fontSize: '0.68rem',
+                        color: '#a5b4fc'
+                      }}
+                    >
+                      {v}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -367,7 +437,8 @@ export function AlgorithmLab() {
                   { name: 'A* Search', time: 'O(E) heuristic', space: 'O(V)', opt: 'Optimal with admissible h' },
                   { name: 'BFS', time: 'O(V+E)', space: 'O(V)', opt: 'Optimal unweighted hops' },
                   { name: 'DFS', time: 'O(V+E)', space: 'O(V)', opt: 'Not optimal (exhaustive)' },
-                  { name: 'Kruskal', time: 'O(E log E)', space: 'O(V+E)', opt: 'Optimal Spanning Tree' }
+                  { name: 'Kruskal MST', time: 'O(E log E)', space: 'O(V+E)', opt: 'Optimal Spanning Tree' },
+                  { name: 'Prim MST', time: 'O((V+E)log V)', space: 'O(V+E)', opt: 'Optimal Spanning Tree' }
                 ].map((row, i) => (
                   <tr key={`row_${i}`} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <td style={{ padding: '6px', fontWeight: '700', color: '#f8fafc' }}>{row.name}</td>

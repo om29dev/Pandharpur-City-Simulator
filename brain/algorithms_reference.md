@@ -13,6 +13,7 @@ Algorithm | Class | Time Complexity | Space Complexity | Optimality Guarantee | 
 **BFS** | Unweighted Exhaustive | O(V + E) | O(V) | Shortest in unweighted hops | Level-by-level radial crowd dispersion or flood evacuation.
 **DFS** | Unweighted Depth-First | O(V + E) | O(V) | Not guaranteed | Exploring long winding alleyways and discovering dead-ends.
 **Kruskal MST** | Greedy / Disjoint-Set | O(E log E) | O(V) | Minimum total tree weight | Laying emergency infrastructure with minimal connection cost.
+**Prim MST** | Greedy / Priority Queue | O((V + E) log V) | O(V + E) | Minimum total tree weight | Expanding utility networks outward from a central shrine with minimal connection cost.
 **Multi-Stop** | Traveling Pilgrim (Greedy)| O(k * (V + E) log V) | O(V) | Heuristic approximation | Sequential yatra itineraries visiting multiple holy shrines.
 
 ---

@@ -16,4 +16,14 @@ describe('Kruskal Algorithm Tests', () => {
     const rejectedSteps = result.steps.filter(s => s.decision === 'REJECTED');
     expect(rejectedSteps.length).toBeGreaterThan(0);
   });
+
+  it('should extract tree path between start and target nodes', () => {
+    const result = runKruskal(graph, 'RAILWAY_STATION', 'VITTHAL_ENTRANCE');
+    expect(result.path).not.toBeNull();
+    expect(result.path.length).toBeGreaterThan(1);
+    expect(result.path[0]).toBe('RAILWAY_STATION');
+    expect(result.path[result.path.length - 1]).toBe('VITTHAL_ENTRANCE');
+    expect(result.totalCost).toBeGreaterThan(0);
+    expect(result.treeCost).toBeGreaterThanOrEqual(result.totalCost);
+  });
 });

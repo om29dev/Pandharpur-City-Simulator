@@ -24,7 +24,9 @@ export function GraphOverlay3D() {
   const currentStep = routeResult?.steps?.[activeStepIndex] || {};
   const visitedSet = new Set(currentStep.visited || []);
   const frontierSet = new Set(currentStep.frontier || []);
-  const activeSubpathSet = new Set(currentStep.activeSubpath || []);
+  const finalStepIdx = (routeResult?.steps?.length || 1) - 1;
+  const activeSubpathArray = currentStep.activeSubpath || (activeStepIndex === finalStepIdx ? routeResult?.path : null) || [];
+  const activeSubpathSet = new Set(activeSubpathArray);
   const mstEdgeSet = new Set(currentStep.mstEdges || routeResult?.mstEdges || []);
 
   const nodeMap = new Map(PANDHARPUR_GRAPH_DATA.nodes.map(n => [n.id, n]));
@@ -46,10 +48,10 @@ export function GraphOverlay3D() {
 
         // Active shortest / traversal path check
         let isPathEdge = false;
-        if (currentStep.activeSubpath && currentStep.activeSubpath.length > 1) {
-          for (let i = 0; i < currentStep.activeSubpath.length - 1; i++) {
-            const p1 = currentStep.activeSubpath[i];
-            const p2 = currentStep.activeSubpath[i + 1];
+        if (activeSubpathArray && activeSubpathArray.length > 1) {
+          for (let i = 0; i < activeSubpathArray.length - 1; i++) {
+            const p1 = activeSubpathArray[i];
+            const p2 = activeSubpathArray[i + 1];
             if ((edge.source === p1 && edge.target === p2) || (edge.source === p2 && edge.target === p1)) {
               isPathEdge = true;
               break;

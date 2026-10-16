@@ -16,5 +16,6 @@ describe('DFS Algorithm Tests', () => {
     expect(result.path.length).toBeGreaterThan(0);
     expect(result.path[0]).toBe('RAILWAY_STATION');
     expect(result.path[result.path.length - 1]).toBe('VITTHAL_ENTRANCE');
+    expect(result.totalCost).toBeGreaterThan(0);
   });
 });

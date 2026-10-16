@@ -348,25 +348,46 @@ export function Sidebar() {
             <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f8fafc' }}>
               Computation Result
             </span>
-            <span className="badge badge-green">OPTIMAL</span>
+            {routeResult.totalCost === null ? (
+              <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171' }}>
+                NO PATH
+              </span>
+            ) : routeResult.mstEdges ? (
+              <span className="badge badge-gold">SPANNING TREE</span>
+            ) : (
+              <span className="badge badge-green">OPTIMAL</span>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <div>
-              <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Total Distance</span>
+              <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                {routeResult.treeCost ? 'Tree Route Distance' : 'Total Distance'}
+              </span>
               <p style={{ fontSize: '1rem', fontWeight: '800', color: '#34d399', margin: 0 }}>
-                {routeResult.totalCost ? `${routeResult.totalCost} m` : 'N/A'}
+                {typeof routeResult.totalCost === 'number' ? `${routeResult.totalCost} m` : 'N/A'}
               </p>
             </div>
             <div>
               <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Est. Walk Time</span>
               <p style={{ fontSize: '1rem', fontWeight: '800', color: '#fbbf24', margin: 0 }}>
-                {routeResult.totalCost ? `${Math.ceil(routeResult.totalCost / 65)} min` : 'N/A'}
+                {typeof routeResult.totalCost === 'number' ? `${Math.ceil(routeResult.totalCost / 65)} min` : 'N/A'}
               </p>
             </div>
           </div>
 
-          {routeResult.path && (
+          {routeResult.treeCost && (
+            <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                Full MST Grid Weight:
+              </span>
+              <span className="mono-font" style={{ fontSize: '0.74rem', color: '#fbbf24', fontWeight: '700' }}>
+                {routeResult.treeCost} m
+              </span>
+            </div>
+          )}
+
+          {routeResult.path && routeResult.path.length > 0 && (
             <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '6px' }}>
               <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
                 Hops Traversed: {routeResult.path.length} waypoints
@@ -382,6 +403,12 @@ export function Sidebar() {
               <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
                 MST Edges Formed: {routeResult.mstEdges.length} connections
               </span>
+            </div>
+          )}
+
+          {routeResult.totalCost === null && (
+            <div style={{ marginTop: '8px', borderTop: '1px solid rgba(239,68,68,0.2)', paddingTop: '6px', fontSize: '0.72rem', color: '#f87171' }}>
+              No route found between selected points. A road may be barricaded.
             </div>
           )}
         </div>

@@ -323,9 +323,7 @@ export const useSimulationStore = create((set, get) => ({
     let result = null;
 
     try {
-      if (selectedAlgorithm === 'KRUSKAL') {
-        result = algoDef.runner(graph);
-      } else if (selectedAlgorithm === 'MULTI_STOP') {
+      if (selectedAlgorithm === 'MULTI_STOP') {
         result = algoDef.runner(graph, startNode, endNode, { multiStops });
       } else {
         result = algoDef.runner(graph, startNode, endNode);

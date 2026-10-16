@@ -16,5 +16,6 @@ describe('BFS Algorithm Tests', () => {
     expect(result.path.length).toBeGreaterThan(0);
     expect(result.path[0]).toBe('VITTHAL_ENTRANCE');
     expect(result.path[result.path.length - 1]).toBe('ISKCON_NODE');
+    expect(result.totalCost).toBeGreaterThan(0);
   });
 });

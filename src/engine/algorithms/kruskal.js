@@ -17,7 +17,7 @@ export const KRUSKAL_METADATA = {
   type: "Greedy / Minimum Spanning Forest",
   timeComplexity: "O(E log E) or O(E log V)",
   spaceComplexity: "O(V + E)",
-  description: "Constructs a minimum-weight spanning tree connecting all nodes without any cycles using a greedy edge selection with Disjoint Set Union (DSU)."
+  description: "Constructs a minimum-weight spanning tree connecting all nodes without any cycles using greedy edge selection with Disjoint Set Union (DSU)."
 };
 
 class DisjointSet {
@@ -52,9 +52,77 @@ class DisjointSet {
     }
     return true;
   }
+
+  getComponents() {
+    const groups = {};
+    for (const id in this.parent) {
+      const root = this.find(id);
+      if (!groups[root]) groups[root] = [];
+      groups[root].push(id);
+    }
+    return Object.entries(groups).map(([root, members]) => ({ root, members }));
+  }
 }
 
-export function runKruskal(graph) {
+/**
+ * Finds the unique path between startNodeId and targetNodeId within a spanning tree/forest.
+ */
+export function findPathInTree(mstEdgeIds, graph, startNodeId, targetNodeId) {
+  if (!startNodeId || !targetNodeId) return { path: null, cost: 0 };
+  if (startNodeId === targetNodeId) return { path: [startNodeId], cost: 0 };
+
+  const treeAdj = new Map();
+  for (const edgeId of mstEdgeIds) {
+    const edge = graph.getEdge(edgeId);
+    if (!edge) continue;
+    if (!treeAdj.has(edge.source)) treeAdj.set(edge.source, []);
+    if (!treeAdj.has(edge.target)) treeAdj.set(edge.target, []);
+    const weight = edge.effectiveWeight || edge.distanceMeters;
+    treeAdj.get(edge.source).push({ neighborId: edge.target, edgeId, weight });
+    treeAdj.get(edge.target).push({ neighborId: edge.source, edgeId, weight });
+  }
+
+  const queue = [startNodeId];
+  const visited = new Set([startNodeId]);
+  const parent = { [startNodeId]: null };
+  const edgeWeight = {};
+
+  let found = false;
+  while (queue.length > 0) {
+    const curr = queue.shift();
+    if (curr === targetNodeId) {
+      found = true;
+      break;
+    }
+    const neighbors = treeAdj.get(curr) || [];
+    for (const n of neighbors) {
+      if (!visited.has(n.neighborId)) {
+        visited.add(n.neighborId);
+        parent[n.neighborId] = curr;
+        edgeWeight[n.neighborId] = n.weight;
+        queue.push(n.neighborId);
+      }
+    }
+  }
+
+  if (!found) return { path: null, cost: 0 };
+
+  const path = [];
+  let curr = targetNodeId;
+  let pathCost = 0;
+  while (curr) {
+    path.unshift(curr);
+    if (edgeWeight[curr] !== undefined) {
+      pathCost += edgeWeight[curr];
+    }
+    if (curr === startNodeId) break;
+    curr = parent[curr];
+  }
+
+  return { path, cost: pathCost };
+}
+
+export function runKruskal(graph, startNodeId = null, targetNodeId = null) {
   const steps = [];
   const nodeIds = graph.nodes.map(n => n.id);
   const dsu = new DisjointSet(nodeIds);
@@ -80,11 +148,14 @@ export function runKruskal(graph) {
   steps.push({
     stepIndex: 0,
     line: 2,
-    description: `Sorted ${edgeList.length} open edges by weight. Initialized Disjoint Set.`,
+    currentNode: startNodeId,
+    targetNode: targetNodeId,
+    description: `Sorted ${edgeList.length} open edges by weight. Initialized Disjoint Set for ${nodeIds.length} vertices.`,
     mstEdges: [],
     currentEdge: null,
     totalCost: 0,
-    edgePool: edgeList.map(e => ({ id: e.edgeId, weight: e.weight }))
+    edgePool: edgeList.map(e => ({ id: e.edgeId, weight: e.weight })),
+    dsuSets: dsu.getComponents()
   });
 
   let stepCounter = 1;
@@ -102,32 +173,65 @@ export function runKruskal(graph) {
       steps.push({
         stepIndex: stepCounter++,
         line: 8,
+        currentNode: u,
+        targetNode: targetNodeId,
         description: `ACCEPTED Edge ${edgeId} (${u} ↔ ${v}, ${weight}m). Different components (${rootU} != ${rootV}). Unioned!`,
         currentEdge: edgeId,
         decision: 'ACCEPTED',
         reason: 'Connects disjoint trees without cycle',
         mstEdges: [...mstEdges],
         totalCost,
-        activeEdge: edge
+        activeEdge: edge,
+        edgePool: edgeList.map(e => ({ id: e.edgeId, weight: e.weight })),
+        dsuSets: dsu.getComponents()
       });
     } else {
       steps.push({
         stepIndex: stepCounter++,
         line: 11,
+        currentNode: u,
+        targetNode: targetNodeId,
         description: `REJECTED Edge ${edgeId} (${u} ↔ ${v}, ${weight}m). Cycle detected! Both already in component ${rootU}.`,
         currentEdge: edgeId,
         decision: 'REJECTED',
         reason: 'Both endpoints in same set; would create cycle',
         mstEdges: [...mstEdges],
         totalCost,
-        activeEdge: edge
+        activeEdge: edge,
+        edgePool: edgeList.map(e => ({ id: e.edgeId, weight: e.weight })),
+        dsuSets: dsu.getComponents()
       });
     }
   }
 
+  // Find unique route through MST between start and target if provided
+  const treePathResult = (startNodeId && targetNodeId)
+    ? findPathInTree(mstEdges, graph, startNodeId, targetNodeId)
+    : { path: null, cost: 0 };
+
+  if (treePathResult.path) {
+    steps.push({
+      stepIndex: stepCounter++,
+      line: 9,
+      currentNode: targetNodeId,
+      targetNode: targetNodeId,
+      description: `Kruskal Spanning Tree complete! Extracted tree route between ${startNodeId} and ${targetNodeId} (${treePathResult.path.length} waypoints, ${treePathResult.cost}m).`,
+      currentEdge: null,
+      decision: 'OPTIMAL_TREE_PATH',
+      reason: 'Extracted tree route between origin and holy destination',
+      mstEdges: [...mstEdges],
+      totalCost,
+      activeSubpath: treePathResult.path,
+      edgePool: edgeList.map(e => ({ id: e.edgeId, weight: e.weight })),
+      dsuSets: dsu.getComponents()
+    });
+  }
+
   return {
+    path: treePathResult.path,
+    totalCost: treePathResult.path ? treePathResult.cost : totalCost,
+    treeCost: totalCost,
     mstEdges,
-    totalCost,
     totalEdgesConsidered: edgeList.length,
     totalSteps: steps.length,
     steps,

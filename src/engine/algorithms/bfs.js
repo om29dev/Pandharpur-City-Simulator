@@ -102,8 +102,20 @@ export function runBFS(graph, startNodeId, targetNodeId = null) {
 
   const finalPath = targetNodeId ? reconstructPath(parent, startNodeId, targetNodeId) : Array.from(visited);
 
+  let totalCost = 0;
+  if (targetNodeId && finalPath && finalPath.length > 1) {
+    for (let i = 0; i < finalPath.length - 1; i++) {
+      const uNode = finalPath[i];
+      const vNode = finalPath[i + 1];
+      const neighbors = graph.getNeighbors(uNode);
+      const edge = neighbors.find(n => n.neighborId === vNode);
+      if (edge) totalCost += edge.weight;
+    }
+  }
+
   return {
     path: finalPath,
+    totalCost: targetNodeId ? (finalPath.length > 0 ? totalCost : null) : totalCost,
     visitedOrder: Array.from(visited),
     levels,
     totalSteps: steps.length,

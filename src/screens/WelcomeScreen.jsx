@@ -75,10 +75,10 @@ export function WelcomeScreen() {
           <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fbbf24', fontWeight: '700', fontSize: '0.82rem', marginBottom: '4px' }}>
               <Code2 size={16} />
-              <span>6 DAA Algorithms</span>
+              <span>7 DAA Algorithms</span>
             </div>
             <p style={{ fontSize: '0.74rem', color: '#94a3b8', margin: 0 }}>
-              Dijkstra, A* Search, BFS, DFS, Kruskal's MST, and Multi-Stop Itinerary with step-by-step trace.
+              Dijkstra, A* Search, BFS, DFS, Kruskal's & Prim's MST, and Multi-Stop Itinerary with step-by-step trace.
             </p>
           </div>
 
